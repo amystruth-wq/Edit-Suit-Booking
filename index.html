@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Holborn Floor 3 booking</title>
+<style>
+:root{--ink:#1f1e1c;--mute:#6b6a64;--line:#d8d6cc;--bg:#faf9f5;--card:#ffffff;--accent:#0F6E56;--accent-bg:#E1F5EE;--busy:#993C1D;--busy-bg:#FAECE7;--pend:#854F0B;--pend-bg:#FAEEDA}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg)}
+header{padding:20px 24px 12px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:var(--card)}
+h1{font-size:20px;font-weight:600;margin:0}
+h2{font-size:16px;font-weight:600;margin:0}
+.sub{color:var(--mute);font-size:13px}
+main{max-width:1100px;margin:0 auto;padding:20px 24px 60px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+.bar .grow{flex:1}
+button,select,input,textarea{font:inherit;color:inherit}
+button{border:1px solid var(--line);background:var(--card);padding:6px 12px;border-radius:8px;cursor:pointer}
+button:hover{border-color:#a8a69a}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.danger{color:var(--busy);border-color:#e3b8a8}
+button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+button.sm{padding:3px 9px;font-size:13px}
+input,select,textarea{border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:#fff;width:100%}
+input[type=checkbox]{width:auto}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.status{font-size:12px;color:var(--mute)}
+.status.bad{color:var(--busy)}
+.mode{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:8px 12px;border-radius:8px;background:var(--pend-bg);color:#633806;font-size:13px;margin-bottom:14px}
+.mode.open{background:var(--accent-bg);color:#085041}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+.grid2{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:20px}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.rc{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;cursor:pointer}
+.rc:hover{border-color:var(--ink)}
+.rc b{display:block}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:#f1efe8;font-weight:600}
+td.free{color:var(--mute)}
+td.cell{cursor:pointer;min-width:110px}
+td.cell.busy{background:var(--busy-bg);color:#712B13}
+td.cell.pend{background:var(--pend-bg);color:#633806}
+td.cell.freec{background:var(--accent-bg);color:#085041}
+td.cell:hover{outline:2px solid var(--ink);outline-offset:-2px}
+td.cell.sel{outline:3px solid var(--ink);outline-offset:-3px}
+td.cell.over{outline:2px dashed var(--ink);outline-offset:-2px}
+td.cell[draggable=true]{cursor:grab}
+td.wknd,th.wknd{opacity:.6}
+td.today,th.today{box-shadow:inset 0 0 0 2px var(--ink)}
+.room{cursor:pointer}
+.room:hover rect{stroke-width:2}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin:0 0 8px}
+.sw{display:inline-block;width:14px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid}
+.blk{display:grid;grid-template-columns:200px 1fr auto;gap:8px 16px;padding:12px 0;border-top:1px solid var(--line);align-items:start}
+.blk:first-child{border-top:0}
+@media(max-width:700px){.blk{grid-template-columns:1fr}}
+.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:10px;margin-left:6px;background:var(--pend-bg);color:#633806}
+.pill.ok{background:var(--accent-bg);color:#085041}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+pre{white-space:pre-wrap;background:#f1efe8;border-radius:8px;padding:12px;font:13px/1.5 ui-monospace,Menlo,monospace;margin:0}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+.overlay.show{display:flex}
+.dlg{background:#fff;border-radius:12px;padding:20px;width:100%;max-width:460px;max-height:92vh;overflow:auto}
+.dlg h2{font-size:17px;margin:0 0 12px}
+.f{margin-bottom:10px}
+.f label{display:block;font-size:12px;color:var(--mute);margin-bottom:3px}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.msg{font-size:13px;margin:8px 0;color:var(--busy)}
+.msg.ok{color:var(--accent)}
+.badge{background:var(--busy);color:#fff;border-radius:10px;font-size:11px;padding:0 6px;margin-left:5px}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Holborn Floor 3 booking</h1>
+    <div class="sub">Edit suites, grading suite and sound rooms. Full-day bookings.</div>
+  </div>
+  <div class="row" style="flex:0 1 auto;align-items:center">
+    <label class="sub" for="me" style="white-space:nowrap">Requesting as</label>
+    <select id="me" style="min-width:150px"></select>
+  </div>
+</header>
+<main>
+  <div class="bar">
+    <div class="tabs">
+      <button id="t-plan">Day plan</button>
+      <button id="t-week">Week grid</button>
+      <button id="t-rooms">Suites</button>
+      <button id="t-post">Slack post</button>
+    </div>
+    <span class="grow"></span>
+    <button id="prev" aria-label="Previous">&larr;</button>
+    <input type="date" id="date" style="width:auto">
+    <button id="next" aria-label="Next">&rarr;</button>
+    <button id="today">Today</button>
+  </div>
+  <div id="dbstatus" class="status" style="margin-bottom:8px"></div>
+  <div id="modebar"></div>
+  <div id="view"></div>
+</main>
+
+<div class="overlay" id="ov"><div class="dlg" id="dlg"></div></div>
+
+<script>
+const PEOPLE=["Amy","Aidan","Will J","Theo","Shreya","Manon","Bella","Zara M","Ryan D","Archie","Ben Raymond"];
+const ADMINS=["Amy"];
+const ADMIN_IDS=["u_82C_cimVBcjmkUPg_OuvDA"];
+const CHANNEL_ID="C0396MLNW77";
+const ROOMS=[
+ {id:"vo",name:"VO Booth",code:"",x:30,y:30,w:130,h:50},
+ {id:"sound",name:"Sound Studio",code:"RD-HB-023",x:30,y:88,w:130,h:50},
+ {id:"grading",name:"Grading Suite",code:"RD-HB-022",x:30,y:170,w:130,h:70},
+ {id:"e5",name:"Edit Suite 5",code:"RD-HB-021",x:30,y:260,w:130,h:70},
+ {id:"e4",name:"Edit Suite 4",code:"RD-HB-020",x:30,y:350,w:130,h:70},
+ {id:"e3",name:"Edit Suite 3",code:"RD-HB-019",x:30,y:440,w:130,h:70},
+ {id:"e2",name:"Edit Suite 2",code:"RD-HB-018",x:30,y:530,w:130,h:70},
+ {id:"e1",name:"Edit Suite 1",code:"RD-HB-017",x:30,y:620,w:130,h:70},
+ {id:"fli",name:"Floor (opposite Iori)",short:"Floor seat",code:"",x:200,y:584,w:130,h:26},
+ {id:"flr",name:"Floor (opposite Ravi)",short:"Floor seat",code:"",x:510,y:584,w:130,h:26}
+];
+const PLAIN=[
+ {name:"Reception",sub:"Amy + Atlanta",x:30,y:730,w:130,h:70,k:"g"},
+ {name:"Meeting Room 1",sub:"",x:30,y:910,w:325,h:56,k:"p"},
+ {name:"Meeting Room 2",sub:"",x:200,y:30,w:440,h:70,k:"p"},
+ {name:"Ryan's Office",sub:"",x:200,y:170,w:440,h:70,k:"p"}
+];
+const TABLES=[
+ {y:260,l:"Table 1 - Production",t:["Dhruvin",0,"Sne"],b:["Faisal",0,"Zara"]},
+ {y:350,l:"Table 2 - Production",t:["Manon","Shreya","Bella"],b:["Ben",0,"Theo"]},
+ {y:440,l:"Table 3 - Graphics",t:["Will",0,"Aidan"],b:["Alex",0,"Chris"]},
+ {y:530,l:"Table 4 - Graphics",t:["Iori",0,"Ravi"],b:[-1,0,-1]},
+ {y:620,l:"Table 5 - Creative",t:[0,"Layla Evans","Amarylla Ingala"],b:["Eddie",0,"James"]},
+ {y:710,l:"Table 6 - Creative",t:["Rosie",0,"Bailey"],b:["Sam","Ewan","Kyra"]},
+ {y:810,l:"The Zoo",t:["Angus","Ruby","Archie"],b:["Kerr",0,"Nikhil"]}
+];
+const COLX=[200,355,510];
+const DAYS=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const MONTHS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const trunc=(s,n)=>s.length>n?s.slice(0,n-1)+"…":s;
+function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function parse(s){const[a,b,c]=s.split("-").map(Number);return new Date(a,b-1,c)}
+function addDays(s,n){const d=parse(s);d.setDate(d.getDate()+n);return iso(d)}
+function dow(s){return(parse(s).getDay()+6)%7}
+function mondayOf(s){return addDays(s,-dow(s))}
+function nice(s){const d=parse(s);return DAYS[dow(s)]+" "+d.getDate()+" "+MONTHS[d.getMonth()]}
+function pm(){try{return localStorage.getItem("rdbook-me")||""}catch(e){return""}}
+
+const S={date:iso(new Date()),view:"plan",room:null,showPast:false,move:false,sel:null,bk:{},conf:{},pend:{},reqItems:{},admin:false,uid:null,db:null,dbState:"loading",me:pm(),mode:"request"};
+const keyOf=(d,r)=>d+"|"+r;
+const idOf=(d,r)=>d+"_"+r;
+const isAdmin=()=>S.admin;
+const canDirect=()=>S.admin;
+const stat=v=>v&&v.status==="pending"?"pending":"confirmed";
+const roomBy=id=>ROOMS.find(r=>r.id===id);
+const LIST=["e1","e2","e3","e4","e5","grading","flr","fli","sound","vo"].map(roomBy);
+const bk=(d,r)=>S.bk[keyOf(d,r)];
+
+function setStatus(){
+  const el=$("#dbstatus");
+  const m={loading:["Loading saved bookings...",""],live:["Bookings are saved and shared live.",""],off:["Bookings can't be loaded or saved from this view. Open the page signed in to Claude.","bad"]}[S.dbState];
+  el.textContent=m[0];el.className="status "+m[1];
+}
+function setModeBar(){
+  const el=$("#modebar");
+  if(S.admin){
+    el.innerHTML=`<div class="mode open"><span><b>Admin.</b> You can book, move names and approve requests. Requests from producers hold their slot until you decide.</span></div>`;
+  }else{
+    el.innerHTML=`<div class="mode"><span><b>Request-only.</b> ${esc(ADMINS.join(", "))} confirms bookings. Send a request and it holds the slot until it's decided.</span></div>`;
+  }
+}
+function applyRole(){
+  const me=$("#me"),lab=$("label[for=me]");
+  if(S.admin){S.me=ADMINS[0];me.style.display="none";lab.textContent="Signed in as admin ("+ADMINS[0]+")";$("#t-post").style.display=""}
+  else{me.style.display="";lab.textContent="Requesting as";$("#t-post").style.display="none";if(S.view==="post")S.view="plan"}
+}
+function mix(){S.bk=Object.assign({},S.pend,S.conf)}
+function rebuildPend(){
+  const m={};
+  Object.keys(S.reqItems).forEach(uid=>{
+    const items=S.reqItems[uid]||{};
+    Object.keys(items).forEach(rid=>{
+      const it=items[rid];if(!it||!it.days||!it.room)return;
+      it.days.forEach(d=>{m[keyOf(d,it.room)]={date:d,room:it.room,editor:it.editor||"",project:it.project||"",guests:it.guests||"",notes:it.notes||"",status:"pending",bookedBy:it.bookedBy||"",_uid:uid,_rid:rid}});
+    });
+  });
+  S.pend=m;
+}
+
+function rowsFrom(snap){
+  let arr=[];
+  if(snap&&snap.docs)arr=Array.from(snap.docs);
+  else if(Array.isArray(snap))arr=snap;
+  else if(snap&&snap.forEach)snap.forEach(d=>arr.push(d));
+  return arr.map(d=>{const v=typeof d.data==="function"?d.data():d;return Object.assign({},v)}).filter(v=>v&&v.date&&v.room);
+}
+
+async function initDb(){
+  let timer=setTimeout(()=>{if(S.dbState==="loading"){S.dbState="off";setStatus()}},10000);
+  try{
+    try{const user=await claude.use("user");if(user){S.uid=await user.id();S.admin=(await user.canEdit())&&ADMIN_IDS.includes(S.uid)}}catch(e){}
+    applyRole();render();
+    const db=await claude.use("db");
+    if(!db){clearTimeout(timer);S.dbState="off";setStatus();return}
+    S.db=db;
+    db.collection("bookings").onSnapshot(snap=>{
+      clearTimeout(timer);
+      const m={};
+      rowsFrom(snap).forEach(v=>{m[keyOf(v.date,v.room)]=v});
+      S.conf=m;mix();S.dbState="live";setStatus();render();
+    },err=>{clearTimeout(timer);S.dbState="off";setStatus()});
+    db.collection("requests").onSnapshot(snap=>{
+      const items={};
+      const arr=snap&&snap.docs?Array.from(snap.docs):[];
+      arr.forEach(d=>{let v=null;try{v=d.data()}catch(e){}items[d.id]=(v&&v.items)||{}});
+      S.reqItems=items;rebuildPend();mix();render();
+    },()=>{});
+  }catch(e){clearTimeout(timer);S.dbState="off";setStatus()}
+}
+
+const pendingCount=()=>Object.values(S.bk).filter(v=>stat(v)==="pending").length;
+
+function isGap(a,b){
+  if(b<=a)return false;
+  let d=addDays(a,1);
+  while(d<b){if(dow(d)<=4)return false;d=addDays(d,1)}
+  return true;
+}
+function blocksFor(room){
+  const list=Object.values(S.bk).filter(v=>v.room===room).sort((x,y)=>x.date<y.date?-1:x.date>y.date?1:0);
+  const out=[];
+  list.forEach(v=>{
+    const last=out[out.length-1];
+    const same=last&&last.editor===v.editor&&last.project===(v.project||"")&&last.guests===(v.guests||"")&&last.notes===(v.notes||"")&&last.status===stat(v)&&last.bookedBy===(v.bookedBy||"")&&last._rid===(v._rid||"")&&isGap(last.days[last.days.length-1],v.date);
+    if(same)last.days.push(v.date);
+    else out.push({room,editor:v.editor||"",project:v.project||"",guests:v.guests||"",notes:v.notes||"",status:stat(v),bookedBy:v.bookedBy||"",_uid:v._uid||"",_rid:v._rid||"",days:[v.date]});
+  });
+  return out;
+}
+function blockAt(room,date){return blocksFor(room).find(b=>b.days.includes(date))}
+function range(b){const a=b.days[0],z=b.days[b.days.length-1];return a===z?nice(a):nice(a)+" to "+nice(z)}
+const dayWord=n=>n+" day"+(n===1?"":"s");
+const canEditBlock=b=>S.admin||(b.status==="pending"&&!!b._uid&&b._uid===S.uid);
+
+function render(){
+  $("#date").value=S.date;
+  [["plan","plan"],["week","week"],["rooms","rooms"],["post","post"]].forEach(([k,v])=>$("#t-"+k).className=S.view===v?"on":"");
+  const n=pendingCount();
+  $("#t-rooms").innerHTML="Suites"+(n&&isAdmin()?`<span class="badge">${n}</span>`:"");
+  setModeBar();
+  const v=$("#view");
+  if(S.view==="plan")v.innerHTML=planHtml();
+  else if(S.view==="week")v.innerHTML=weekHtml();
+  else if(S.view==="rooms")v.innerHTML=S.room?roomHtml(S.room):roomsHtml();
+  else v.innerHTML=postHtml();
+  wire();
+}
+
+function seat(x,y,name){
+  if(name===-1)return"";
+  if(name)return `<rect x="${x}" y="${y}" width="130" height="26" rx="4" fill="#E6F1FB" stroke="#185FA5" stroke-width=".7"/><text x="${x+65}" y="${y+13}" text-anchor="middle" dominant-baseline="central" font-size="13" fill="#0C447C" font-weight="500">${esc(name)}</text>`;
+  return `<rect x="${x}" y="${y}" width="130" height="26" rx="4" fill="none" stroke="#a8a69a" stroke-dasharray="4 3" stroke-width=".7"/><text x="${x+65}" y="${y+13}" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#6b6a64">free</text>`;
+}
+
+function planSvg(d){
+  let s=`<svg viewBox="0 0 680 990" width="100%" role="img" aria-label="Floor 3 plan for ${esc(nice(d))}" font-family="system-ui,sans-serif">`;
+  PLAIN.forEach(p=>{
+    const f=p.k==="p"?["#FBEAF0","#993556","#72243E"]:["#F1EFE8","#5F5E5A","#444441"];
+    s+=`<rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="4" fill="${f[0]}" stroke="${f[1]}" stroke-width=".7"/>`;
+    if(p.sub){s+=`<text x="${p.x+p.w/2}" y="${p.y+p.h/2-9}" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="${f[2]}">${esc(p.name)}</text><text x="${p.x+p.w/2}" y="${p.y+p.h/2+11}" text-anchor="middle" dominant-baseline="central" font-size="12" fill="${f[2]}">${esc(p.sub)}</text>`}
+    else s+=`<text x="${p.x+p.w/2}" y="${p.y+p.h/2}" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="${f[2]}">${esc(p.name)}</text>`;
+  });
+  TABLES.forEach(t=>{
+    t.t.forEach((n,i)=>{s+=seat(COLX[i],t.y,n)});
+    s+=`<rect x="200" y="${t.y+28}" width="440" height="22" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width=".7"/><text x="420" y="${t.y+39}" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#444441">${esc(t.l)}</text>`;
+    t.b.forEach((n,i)=>{s+=seat(COLX[i],t.y+54,n)});
+  });
+  ROOMS.forEach(r=>{
+    const b=bk(d,r.id);const p=b&&stat(b)==="pending";
+    const f=!b?["#E1F5EE","#0F6E56","#085041"]:p?["#FAEEDA","#854F0B","#633806"]:["#FAECE7","#993C1D","#712B13"];
+    const cx=r.x+r.w/2;
+    s+=`<g class="room" data-room="${r.id}" tabindex="0" role="button" aria-label="${esc(r.name)}, ${b?(p?"requested by ":"booked by ")+esc(b.editor):"free"}">`;
+    s+=`<rect x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" rx="4" fill="${f[0]}" stroke="${f[1]}" stroke-width="1"${p?` stroke-dasharray="5 3"`:""}/>`;
+    const lines=[[r.short||r.name,13,500]];
+    if(b){lines.push([trunc(b.editor||"",18),12,500]);if(p)lines.push(["Requested",11,400]);else if(b.project)lines.push([trunc(b.project,20),11,400])}
+    else lines.push([r.code||"Free",11,400]);
+    if(r.h<60&&lines.length>2)lines.length=2;
+    if(r.h<30){lines.length=0;lines.push([b?trunc(b.editor||"",16)+(p?" (req.)":""):r.short,12,500])}
+    const lh=r.h>=70?19:16;const y0=r.y+r.h/2-(lines.length-1)*lh/2;
+    lines.forEach((l,i)=>{s+=`<text x="${cx}" y="${y0+i*lh}" text-anchor="middle" dominant-baseline="central" font-size="${l[1]}" font-weight="${l[2]}" fill="${f[2]}">${esc(l[0])}</text>`});
+    s+=`</g>`;
+  });
+  return s+`</svg>`;
+}
+
+function dayRows(d){
+  return LIST.map(r=>{
+    const b=bk(d,r.id);
+    return `<tr><th scope="row">${esc(r.name)}</th>${b?`<td>${esc(b.editor)}${stat(b)==="pending"?`<span class="pill">Requested</span>`:""}${b.project?`<br><span class="sub">${esc(b.project)}</span>`:""}${b.guests?`<br><span class="sub">With ${esc(b.guests)}</span>`:""}${b.notes?`<br><span class="sub">${esc(b.notes)}</span>`:""}</td>`:`<td class="free">Free</td>`}</tr>`;
+  }).join("");
+}
+
+function planHtml(){
+  const d=S.date;
+  return `<div class="grid2"><div class="card"><div class="legend"><span><i class="sw" style="background:#E1F5EE;border-color:#0F6E56"></i>Free</span><span><i class="sw" style="background:#FAECE7;border-color:#993C1D"></i>Booked</span><span><i class="sw" style="background:#FAEEDA;border-color:#854F0B"></i>Requested</span><span><i class="sw" style="background:#E6F1FB;border-color:#185FA5"></i>Assigned desk</span><span><i class="sw" style="background:#fff;border-color:#a8a69a;border-style:dashed"></i>Free desk</span></div>${planSvg(d)}<div class="sub">Click a suite or room to see its full list of bookings.</div></div>
+  <div class="card"><h2 style="margin-bottom:8px">${esc(nice(d))}</h2><table><tbody>${dayRows(d)}</tbody></table></div></div>`;
+}
+
+function moveBar(){
+  if(!isAdmin())return"";
+  return `<div class="bar"><button id="movebtn" class="${S.move?"on":""}">${S.move?"Move mode on":"Move names"}</button><span class="sub">${S.move?(S.sel?"Now click where it should go. Clicking a booked cell swaps the two.":"Click a booked cell to pick it up."):"Drag a booked cell onto another day or suite, or turn on Move names and click."}</span></div>`;
+}
+async function moveCell(src,dst){
+  const a=bk(src.d,src.r),b=bk(dst.d,dst.r);
+  if(!a||(src.d===dst.d&&src.r===dst.r))return;
+  if(!S.admin)throw new Error("Only the admin can move names");
+  if(a._rid||(b&&b._rid))throw new Error("Approve or decline the request first");
+  const t=new Date().toISOString();
+  await writeDoc(dst.d,dst.r,Object.assign({},a,{date:dst.d,room:dst.r,updatedAt:t}));
+  if(b)await writeDoc(src.d,src.r,Object.assign({},b,{date:src.d,room:src.r,updatedAt:t}));
+  else await writeDoc(src.d,src.r,null);
+}
+function weekHtml(){
+  const m=mondayOf(S.date);const days=[0,1,2,3,4,5,6].map(i=>addDays(m,i));const t=iso(new Date());
+  let h=moveBar()+`<div class="card" style="overflow:auto"><table><thead><tr><th></th>${days.map((d,i)=>`<th class="${i>4?"wknd":""} ${d===t?"today":""}">${esc(nice(d))}</th>`).join("")}</tr></thead><tbody>`;
+  LIST.forEach(r=>{
+    h+=`<tr><th scope="row">${esc(r.name)}</th>`;
+    days.forEach((d,i)=>{
+      const b=bk(d,r.id);const p=b&&stat(b)==="pending";
+      h+=`<td class="cell ${!b?"freec":p?"pend":"busy"} ${i>4?"wknd":""} ${S.sel===keyOf(d,r.id)?"sel":""}" data-room="${r.id}" data-date="${d}"${b&&isAdmin()&&!b._rid?' draggable="true"':""}>${b?`<b>${esc(b.editor)}</b>${p?` <span class="sub">(requested)</span>`:""}${b.project?`<br><span class="sub">${esc(b.project)}</span>`:""}`:`<span class="sub">Free</span>`}</td>`;
+    });
+    h+=`</tr>`;
+  });
+  return h+`</tbody></table><div class="sub" style="margin-top:8px">Week of ${esc(nice(m))}. Click any cell to book, request or edit.</div></div>`;
+}
+
+function blockHtml(b,showRoom){
+  const r=roomBy(b.room);
+  const pend=b.status==="pending";
+  let acts="";
+  if(pend&&isAdmin())acts+=`<button class="sm primary" data-act="approve">Approve</button><button class="sm danger" data-act="decline">Decline</button>`;
+  if(canEditBlock(b))acts+=`<button class="sm" data-act="edit">${pend&&!isAdmin()?"Edit request":pend?"Edit and approve":"Edit"}</button>`;
+  if(canEditBlock(b)&&!(pend&&isAdmin()))acts+=`<button class="sm danger" data-act="cancel">${pend?"Withdraw":"Cancel"}</button>`;
+  return `<div class="blk" data-room="${b.room}" data-start="${b.days[0]}">
+    <div><b>${esc(range(b))}</b><br><span class="sub">${dayWord(b.days.length)}${showRoom?" in "+esc(r.name):""}</span></div>
+    <div><b>${esc(b.editor)}</b><span class="pill ${pend?"":"ok"}">${pend?"Requested":"Confirmed"}</span>${b.project?`<br>${esc(b.project)}`:""}${b.guests?`<br><span class="sub">With ${esc(b.guests)}</span>`:""}${b.notes?`<br><span class="sub">${esc(b.notes)}</span>`:""}${pend&&b.bookedBy?`<br><span class="sub">Requested by ${esc(b.bookedBy)}</span>`:""}</div>
+    <div class="acts">${acts}</div></div>`;
+}
+
+function roomsHtml(){
+  const t=iso(new Date());
+  const pend=[];LIST.forEach(r=>blocksFor(r.id).forEach(b=>{if(b.status==="pending")pend.push(b)}));
+  let h="";
+  if(pend.length){h+=`<div class="card"><h2 style="margin-bottom:6px">${isAdmin()?"Requests waiting for you":"Requests waiting"} (${pend.length})</h2>${pend.map(b=>blockHtml(b,true)).join("")}</div>`}
+  h+=`<div class="cards">`+LIST.map(r=>{
+    const up=blocksFor(r.id).filter(b=>b.days[b.days.length-1]>=t);
+    const nx=up[0];
+    return `<div class="rc" data-open="${r.id}"><b>${esc(r.name)}</b><span class="sub">${esc(r.code||"")}</span><div style="margin-top:8px;font-size:13px">${nx?`Next: ${esc(nx.editor)}<br><span class="sub">${esc(range(nx))}, ${dayWord(nx.days.length)}${nx.status==="pending"?" (requested)":""}</span>`:`<span class="sub">Nothing booked</span>`}</div><div class="sub" style="margin-top:6px">${up.length} upcoming block${up.length===1?"":"s"}</div></div>`;
+  }).join("")+`</div>`;
+  return h;
+}
+
+function roomHtml(id){
+  const r=roomBy(id);const t=iso(new Date());
+  let list=blocksFor(id);
+  if(!S.showPast)list=list.filter(b=>b.days[b.days.length-1]>=t);
+  return `<div class="bar"><button id="back">&larr; All suites</button><h2>${esc(r.name)}${r.code?` <span class="sub">${esc(r.code)}</span>`:""}</h2><span class="grow"></span><label class="sub"><input type="checkbox" id="past" ${S.showPast?"checked":""}> Show past</label><button class="primary" id="bookroom">${canDirect()?"Book this suite":"Request this suite"}</button></div>
+  <div class="card">${list.length?list.map(b=>blockHtml(b,false)).join(""):`<div class="sub">Nothing booked${S.showPast?"":" from today onwards"}.</div>`}</div>`;
+}
+
+function dayText(d){
+  const lines=[],free=[],pend=[];
+  LIST.forEach(r=>{
+    const b=bk(d,r.id);
+    if(!b){free.push(r.name);return}
+    if(stat(b)==="pending"){pend.push(r.name+" ("+b.editor+")");return}
+    let l=r.name+": "+b.editor;
+    if(b.project)l+=" ("+b.project+")";
+    if(b.guests)l+=" with "+b.guests;
+    if(b.notes)l+=" - "+b.notes;
+    lines.push(l);
+  });
+  return {lines,free,pend};
+}
+function postText(mode){
+  if(mode==="week"){
+    const m=mondayOf(S.date);let out="Edit suite plan, week of "+nice(m)+"\n";
+    for(let i=0;i<5;i++){
+      const d=addDays(m,i);const x=dayText(d);
+      out+="\n"+nice(d)+"\n"+(x.lines.length?x.lines.join("\n"):"No confirmed bookings")+"\n";
+    }
+    return out.trim();
+  }
+  const x=dayText(S.date);
+  let out="Edit suite plan, "+nice(S.date)+"\n";
+  out+=x.lines.length?x.lines.join("\n"):"No confirmed bookings yet";
+  if(x.pend.length)out+="\nRequested, not yet confirmed: "+x.pend.join(", ");
+  if(x.free.length)out+="\nFree: "+x.free.join(", ");
+  return out;
+}
+let postMode="day";
+function postHtml(){
+  return `<div class="card"><div class="bar"><button id="pm-day" class="${postMode==="day"?"on":""}">Selected day</button><button id="pm-week" class="${postMode==="week"?"on":""}">Whole week (Mon to Fri)</button></div><pre id="posttext">${esc(postText(postMode))}</pre><div class="bar" style="margin-top:12px"><button id="copy">Copy</button><button id="post" class="primary">Post to #rd-holborn-office</button></div><div id="postmsg" class="msg" style="display:none"></div></div>`;
+}
+
+function wire(){
+  document.querySelectorAll(".room").forEach(el=>{
+    const go=()=>{S.view="rooms";S.room=el.dataset.room;render()};
+    el.addEventListener("click",go);
+    el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
+  });
+  document.querySelectorAll("td.cell").forEach(el=>{
+    const d=el.dataset.date,r=el.dataset.room;
+    el.addEventListener("click",async()=>{
+      if(S.move&&isAdmin()){
+        if(!S.sel){if(bk(d,r)){S.sel=keyOf(d,r);render()}return}
+        const [sd,sr]=S.sel.split("|");S.sel=null;
+        try{await moveCell({d:sd,r:sr},{d,r})}catch(err){alert_("Couldn't move that: "+((err&&(err.code||err.message))||"error"))}
+        render();return;
+      }
+      openDlg(r,blockAt(r,d),d);
+    });
+    if(isAdmin()){
+      el.addEventListener("dragstart",e=>{if(!bk(d,r)){e.preventDefault();return}try{e.dataTransfer.setData("text/plain",keyOf(d,r));e.dataTransfer.effectAllowed="move"}catch(x){}});
+      el.addEventListener("dragover",e=>{e.preventDefault();el.classList.add("over")});
+      el.addEventListener("dragleave",()=>el.classList.remove("over"));
+      el.addEventListener("drop",async e=>{
+        e.preventDefault();el.classList.remove("over");
+        let k="";try{k=e.dataTransfer.getData("text/plain")}catch(x){}
+        if(!k)return;const [sd,sr]=k.split("|");
+        try{await moveCell({d:sd,r:sr},{d,r})}catch(err){alert_("Couldn't move that: "+((err&&(err.code||err.message))||"error"))}
+        render();
+      });
+    }
+  });
+  const mv=$("#movebtn");if(mv)mv.onclick=()=>{S.move=!S.move;S.sel=null;render()};
+  document.querySelectorAll("[data-open]").forEach(el=>el.addEventListener("click",()=>{S.room=el.dataset.open;render()}));
+  const back=$("#back");if(back)back.onclick=()=>{S.room=null;render()};
+  const past=$("#past");if(past)past.onchange=()=>{S.showPast=past.checked;render()};
+  const bb=$("#bookroom");if(bb)bb.onclick=()=>openDlg(S.room,null,S.date);
+  document.querySelectorAll(".blk").forEach(el=>{
+    const room=el.dataset.room,start=el.dataset.start;
+    const get=()=>blocksFor(room).find(b=>b.days[0]===start);
+    el.querySelectorAll("[data-act]").forEach(btn=>btn.onclick=async()=>{
+      const b=get();if(!b)return;
+      const a=btn.dataset.act;
+      try{
+        if(a==="edit")openDlg(room,b,start);
+        else if(a==="approve")await approve(b);
+        else if(a==="decline"||a==="cancel")await removeBlock(b);
+      }catch(err){alert_("Couldn't do that: "+((err&&(err.code||err.message))||"error")+". Ask Amy for Contributor access if this keeps happening.")}
+      render();
+    });
+  });
+  const a=$("#pm-day"),b2=$("#pm-week");
+  if(a){a.onclick=()=>{postMode="day";render()};b2.onclick=()=>{postMode="week";render()};
+    $("#copy").onclick=copyPost;$("#post").onclick=confirmPost}
+}
+
+async function removeRequestItem(uid,rid){
+  if(!S.db||!uid||!rid)return;
+  const items=Object.assign({},S.reqItems[uid]||{});delete items[rid];
+  await S.db.doc("requests/"+uid).set({items});
+  S.reqItems[uid]=items;rebuildPend();mix();
+}
+async function approve(b){
+  if(!S.admin)throw new Error("Only the admin can approve");
+  const t=new Date().toISOString();
+  for(const d of b.days){const ex=S.pend[keyOf(d,b.room)]||{};await writeDoc(d,b.room,{date:d,room:b.room,editor:ex.editor||b.editor,project:ex.project||"",guests:ex.guests||"",notes:ex.notes||"",status:"confirmed",bookedBy:ex.bookedBy||b.bookedBy||"",approvedBy:S.me,updatedAt:t})}
+  await removeRequestItem(b._uid,b._rid);
+}
+async function removeBlock(b){
+  if(b.status==="pending"){await removeRequestItem(b._uid,b._rid);return}
+  if(!S.admin)throw new Error("Only the admin can cancel confirmed bookings");
+  for(const d of b.days)await writeDoc(d,b.room,null);
+}
+
+async function copyPost(){
+  const t=postText(postMode);const msg=$("#postmsg");
+  let ok=false;
+  try{await navigator.clipboard.writeText(t);ok=true}catch(e){}
+  if(!ok){try{const r=document.createRange();r.selectNodeContents($("#posttext"));const sel=getSelection();sel.removeAllRanges();sel.addRange(r);ok=document.execCommand("copy")}catch(e){}}
+  msg.style.display="block";msg.className="msg"+(ok?" ok":"");
+  msg.textContent=ok?"Copied. Paste it into Slack.":"Couldn't copy automatically. The text is selected, press Ctrl+C or Cmd+C.";
+}
+
+function confirmPost(){
+  if(!S.me){showMsg("Pick your name under Booking as first.");return}
+  const dlg=$("#dlg");
+  dlg.innerHTML=`<h2>Post to #rd-holborn-office?</h2><pre>${esc(postText(postMode))}</pre><div class="row" style="margin-top:14px"><button id="no">Cancel</button><button id="yes" class="primary">Post now</button></div><div id="dmsg" class="msg" style="display:none"></div>`;
+  $("#ov").classList.add("show");
+  $("#no").onclick=closeDlg;
+  $("#yes").onclick=async()=>{
+    const m=$("#dmsg");m.style.display="block";m.className="msg ok";m.textContent="Posting...";
+    const res=await slackPost(postText(postMode));
+    if(res.ok){closeDlg();showMsg("Posted to #rd-holborn-office.",true)}
+    else{m.className="msg";m.textContent=res.err}
+  };
+}
+function showMsg(t,ok){const m=$("#postmsg");if(!m)return;m.style.display="block";m.className="msg"+(ok?" ok":"");m.textContent=t}
+
+async function slackPost(text){
+  try{
+    const mcp=await claude.use("mcp");
+    if(!mcp)return{ok:false,err:"Slack isn't available in this view. Use Copy and paste it into the channel."};
+    const input={channel_id:CHANNEL_ID,message:text};
+    if(typeof mcp.callTool==="function"){await mcp.callTool("Slack","slack_send_message",input)}
+    else if(typeof mcp.server==="function"){const s=await mcp.server("Slack");await s.slack_send_message(input)}
+    else return{ok:false,err:"Slack posting isn't supported in this view. Use Copy."};
+    return{ok:true};
+  }catch(e){
+    return{ok:false,err:"Couldn't post to Slack ("+((e&&(e.code||e.message))||"error")+"). Use Copy and paste it into the channel."};
+  }
+}
+
+function openDlg(room,block,date){
+  if(!S.me){alert_("Pick your name under Booking as (top right) first.");return}
+  const r=roomBy(room);
+  const dlg=$("#dlg");
+  if(block&&!canEditBlock(block)){
+    dlg.innerHTML=`<h2>${esc(r.name)}</h2><p><b>${esc(block.editor)}</b><span class="pill ${block.status==="pending"?"":"ok"}">${block.status==="pending"?"Requested":"Confirmed"}</span><br>${esc(range(block))}, ${dayWord(block.days.length)}${block.project?`<br>${esc(block.project)}`:""}${block.guests?`<br><span class="sub">With ${esc(block.guests)}</span>`:""}${block.notes?`<br><span class="sub">${esc(block.notes)}</span>`:""}</p><div class="sub">Only ${esc(ADMINS.join(", "))} can change this. Ask in the production meeting.</div><div class="row" style="margin-top:12px"><button id="close" class="primary">Close</button></div>`;
+    $("#ov").classList.add("show");$("#close").onclick=closeDlg;return;
+  }
+  const b=block||{};
+  const s0=block?block.days[0]:date,e0=block?block.days[block.days.length-1]:date;
+  const direct=canDirect();
+  dlg.innerHTML=`<h2>${esc(r.name)}${block?"":direct?" - new booking":" - request"}</h2>
+  ${direct?"":`<div class="sub" style="margin-bottom:10px">This sends a request to ${esc(ADMINS.join(", "))}. The slot is held until it's decided.</div>`}
+  ${isAdmin()?`<div class="f"><label>Suite</label><select id="f-rm">${LIST.map(x=>`<option value="${x.id}"${x.id===room?" selected":""}>${esc(x.name)}</option>`).join("")}</select></div>`:""}
+  <div class="row"><div class="f"><label>From</label><input type="date" id="f-s" value="${s0}"></div><div class="f"><label>To (full days)</label><input type="date" id="f-e" value="${e0}"></div></div>
+  <div class="f"><label><input type="checkbox" id="f-wk" checked> Weekdays only</label></div>
+  <div class="f"><label>Editor</label><input id="f-ed" value="${esc(b.editor||"")}"></div>
+  <div class="f"><label>Project</label><input id="f-pr" value="${esc(b.project||"")}"></div>
+  <div class="f"><label>Guests</label><input id="f-gu" value="${esc(b.guests||"")}" placeholder="Anyone else in the suite"></div>
+  <div class="f"><label>Notes</label><textarea id="f-no" rows="2">${esc(b.notes||"")}</textarea></div>
+  <div id="dmsg" class="msg" style="display:none"></div>
+  <div class="row" style="margin-top:12px">${block?`<button class="danger" id="del">${block.status==="pending"&&!isAdmin()?"Withdraw":"Cancel booking"}</button>`:""}<button id="close">Close</button><button class="primary" id="save">${direct?"Save":"Send request"}</button></div>
+  <div class="sub" style="margin-top:8px">Booking as ${esc(S.me)}</div>`;
+  $("#ov").classList.add("show");
+  $("#close").onclick=closeDlg;
+  $("#save").onclick=()=>save(room,block);
+  if($("#del"))$("#del").onclick=async()=>{try{await removeBlock(block)}catch(err){dlgMsg("Couldn't cancel: "+((err&&(err.code||err.message))||"error"));return}render();closeDlg()};
+}
+function alert_(t){
+  $("#dlg").innerHTML=`<h2>Heads up</h2><p>${esc(t)}</p><div class="row"><button id="close" class="primary">OK</button></div>`;
+  $("#ov").classList.add("show");$("#close").onclick=closeDlg;
+}
+function closeDlg(){$("#ov").classList.remove("show")}
+function dlgMsg(t,ok){const m=$("#dmsg");m.style.display="block";m.className="msg"+(ok?" ok":"");m.textContent=t}
+
+async function writeDoc(d,room,data){
+  const k=keyOf(d,room);
+  if(data===null)delete S.conf[k];else S.conf[k]=data;
+  mix();
+  if(S.db){
+    const ref=S.db.doc("bookings/"+idOf(d,room));
+    if(data===null)await ref.delete();else await ref.set(data);
+  }
+}
+
+async function save(room0,block){
+  const room=$("#f-rm")?$("#f-rm").value:room0;
+  const s=$("#f-s").value,e=$("#f-e").value||s,ed=$("#f-ed").value.trim();
+  if(!s){dlgMsg("Pick a start date.");return}
+  if(e<s){dlgMsg("The end date is before the start date.");return}
+  if(!ed){dlgMsg("Enter the editor's name.");return}
+  const wk=$("#f-wk").checked;
+  const orig=block?block.days:[];
+  const days=[];for(let d=s;d<=e;d=addDays(d,1)){if(wk&&dow(d)>4&&s!==e)continue;days.push(d)}
+  if(days.length>93){dlgMsg("That's more than 3 months. Book a shorter range.");return}
+  const skipped=[];let n=0;
+  const fields={editor:ed,project:$("#f-pr").value.trim(),guests:$("#f-gu").value.trim(),notes:$("#f-no").value.trim()};
+  if(!S.admin){
+    if(!S.me){dlgMsg("Pick your name at the top first.");return}
+    if(!S.uid){dlgMsg("Sign in to Claude to send a request.");return}
+    const ok=[];
+    for(const d of days){
+      const ex=bk(d,room);
+      if(ex&&!(block&&room===room0&&orig.includes(d)&&ex._rid===block._rid)){skipped.push(nice(d)+" ("+ex.editor+")");continue}
+      ok.push(d);
+    }
+    if(!ok.length){dlgMsg("Those days are already held or booked: "+skipped.join(", ")+".");return}
+    try{
+      const items=Object.assign({},S.reqItems[S.uid]||{});
+      const rid=block&&block._rid?block._rid:("r"+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+      items[rid]=Object.assign({room,days:ok,bookedBy:S.me,createdAt:new Date().toISOString()},fields);
+      await S.db.doc("requests/"+S.uid).set({items});
+      S.reqItems[S.uid]=items;rebuildPend();mix();
+    }catch(err){dlgMsg("Couldn't send the request: "+((err&&(err.code||err.message))||"error")+". You may need Contributor access, ask Amy.");render();return}
+    n=ok.length;
+  }else{
+    const t=new Date().toISOString();
+    const data=Object.assign({room},fields,{status:"confirmed",bookedBy:block&&block.bookedBy?block.bookedBy:S.me,updatedAt:t});
+    const written=new Set();
+    try{
+      for(const d of days){
+        const ex=bk(d,room);
+        if(ex&&!(room===room0&&orig.includes(d))){skipped.push(nice(d)+" ("+ex.editor+")");continue}
+        await writeDoc(d,room,Object.assign({date:d},data));written.add(d);n++;
+      }
+      if(block&&block.status==="pending"){await removeRequestItem(block._uid,block._rid)}
+      else for(const d of orig){if(room===room0?!days.includes(d):(written.has(d)||!days.includes(d)))await writeDoc(d,room0,null)}
+    }catch(err){dlgMsg("Couldn't save: "+((err&&(err.code||err.message))||"error"));render();return}
+  }
+  render();
+  if(skipped.length){dlgMsg((S.admin?"Saved ":"Requested ")+n+" day"+(n===1?"":"s")+". Skipped, already held or booked: "+skipped.join(", ")+".",true)}
+  else closeDlg();
+}
+
+const sel=$("#me");
+sel.innerHTML=`<option value="">Pick your name</option>`+PEOPLE.map(p=>`<option>${esc(p)}</option>`).join("");
+sel.value=S.me;
+sel.onchange=()=>{S.me=sel.value;try{localStorage.setItem("rdbook-me",S.me)}catch(e){}render()};
+$("#date").onchange=e=>{if(e.target.value){S.date=e.target.value;render()}};
+$("#prev").onclick=()=>{S.date=addDays(S.date,S.view==="week"?-7:-1);render()};
+$("#next").onclick=()=>{S.date=addDays(S.date,S.view==="week"?7:1);render()};
+$("#today").onclick=()=>{S.date=iso(new Date());render()};
+[["plan","plan"],["week","week"],["rooms","rooms"],["post","post"]].forEach(([k,v])=>$("#t-"+k).onclick=()=>{S.view=v;if(v==="rooms")S.room=null;render()});
+$("#ov").addEventListener("click",e=>{if(e.target.id==="ov")closeDlg()});
+setStatus();render();initDb();
+</script>
+</body>
+</html>
